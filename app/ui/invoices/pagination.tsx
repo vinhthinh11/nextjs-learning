@@ -4,23 +4,31 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { generatePagination } from '@/app/lib/utils';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export default function Pagination({ totalPages }: { totalPages: number }) {
-  // NOTE: comment in this code when you get to this point in the course
+  const pathname = usePathname(); // get the current path name like '/dashboard/invoices'
+  const searchParams = useSearchParams(); // get query params from the URL
+  const currentPage = Number(searchParams.get('page')) || 1; // get current page if not set page to one
 
-  // const allPages = generatePagination(currentPage, totalPages);
+  const createPageURL = (pageNumber: number | string) => {
+    const params = new URLSearchParams(searchParams); // URLSearchParams is a built-in object hepl you to work with query strings easier
+    params.set('page', pageNumber.toString());
+    return `${pathname}?${params.toString()}`;
+  };
+
+  const allPages = generatePagination(currentPage, totalPages); // return an array of pages to display in the pagination || ở đây sẽ có 1 sso trường hợp tại vi ở đây use-client nen người dùng có thể chinh page =0, tạo ra lỗi khi fetch page
 
   return (
     <>
-      {/* NOTE: comment in this code when you get to this point in the course */}
-
-      {/* <div className="inline-flex">
+      {/* this is the component of right arrow, when click it uupdate the url of the page */}
+      <div className="inline-flex">
         <PaginationArrow
           direction="left"
           href={createPageURL(currentPage - 1)}
           isDisabled={currentPage <= 1}
         />
-
+        {/* display the page of  */}
         <div className="flex -space-x-px">
           {allPages.map((page, index) => {
             let position: 'first' | 'last' | 'single' | 'middle' | undefined;
@@ -47,7 +55,7 @@ export default function Pagination({ totalPages }: { totalPages: number }) {
           href={createPageURL(currentPage + 1)}
           isDisabled={currentPage >= totalPages}
         />
-      </div> */}
+      </div>
     </>
   );
 }
